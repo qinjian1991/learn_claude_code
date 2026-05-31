@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(.venv/Scripts/python main.py \"北京天气怎么样\")",
+      "Bash(.venv/Scripts/python main.py \"3的15次方是多少\")",
+      "Bash(.venv/Scripts/python main.py \"查看当前目录下有哪些文件\")",
+      "Bash(.venv/Scripts/python main.py \"查看当前目录下有什么\")",
+      "Bash(.venv/Scripts/python -c \"import app; print\\('OK'\\)\")",
+      "mcp__plugin_chrome-devtools-mcp_chrome-devtools__navigate_page",
+      "mcp__plugin_chrome-devtools-mcp_chrome-devtools__take_snapshot",
+      "mcp__plugin_chrome-devtools-mcp_chrome-devtools__fill"
+    ]
+  }
+}
