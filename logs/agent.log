@@ -1,0 +1,8 @@
+2026-06-01 20:28:59 INFO  agent: Hooks initialized (built-in: logging)
+2026-06-01 20:29:04 INFO  agent: ▶ Model Call | model=claude-sonnet-4-6 | messages=1
+  system: 你是一个有用的助手。当需要实时数据或计算时，使用工具。
+  messages:
+  [user] 你好
+2026-06-01 20:29:05 INFO  agent: ◀ Model Response | stop_reason=end_turn | input=69 output=19
+[text] 你好！有什么可以帮你的吗？😊
+2026-06-01 20:29:05 INFO  agent: ■ Agent Stop | messages=2

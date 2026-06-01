@@ -4,8 +4,11 @@ Streamlit UI for the Agent Loop — 流式打字机效果
 Run: .venv/Scripts/streamlit run app.py
 """
 
+import log_config   # 1. 日志配置
+import hooks        # 2. 钩子系统（导入时自动注册内置钩子）
+
 import streamlit as st
-from main import make_state, agent_loop
+from agent_loop import make_state, agent_loop
 
 st.set_page_config(page_title="Agent Demo", page_icon="🤖")
 
@@ -70,7 +73,7 @@ if prompt := st.chat_input("Ask something..."):
 
     # 收集流式文本块，运行 Agent
     chunks: list[str] = []
-    agent_loop(state, verbose=False, on_text=chunks.append)
+    agent_loop(state, on_text=chunks.append)
 
     # 打字机效果呈现文本
     with st.chat_message("assistant"):

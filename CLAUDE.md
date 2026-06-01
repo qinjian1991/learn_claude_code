@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Environment
 
 - Python 3.13 with a virtual environment at `.venv/`
-- Run: `.venv/Scripts/python main.py [optional query]`
+- Run: `.venv/Scripts/streamlit run app.py`
 
 ## Key dependencies
 
@@ -18,17 +18,50 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### File structure
 
 ```
-main.py          — Agent loop 逻辑 + state 管理 + CLI 入口
-app.py           — Streamlit Web UI
-tools/           — 工具包（会频繁修改）
-  __init__.py    — 注册表 + 导出 SCHEMAS 和 execute()
-  powershell.py  — PowerShell 工具 (schema + executor)
+agent_loop.py   — Agent loop 逻辑 + state 管理（核心）
+app.py          — Streamlit Web UI（入口）
+log_config.py   — 日志配置（dictConfig，只做日志）
+hooks/          — 生命周期钩子
+  __init__.py   — 导入即自动注册内置钩子，re-export 核心 API
+  hook.py       — HOOKS 注册表 + register_hook/trigger_hooks
+  logging_hooks.py — 内置日志钩子
+tools/          — 工具包
+  __init__.py   — 注册表 + 导出 SCHEMAS 和 execute()
+  powershell.py — PowerShell 工具 (schema + executor)
 ```
 
-### Agent Loop (`main.py`)
+### 启动顺序 (`app.py`)
 
-`agent_loop(state, verbose=True, stream=True)` 是核心：接受 state dict，读写 `state["messages"]`，返回 state。
-默认流式输出；`stream=False` 切回非流式，`verbose=False` 静默（供 UI 调用）。
+```python
+import log_config   # 1. 配置日志基础设施
+import hooks        # 2. 钩子系统（导入时自动注册内置钩子）
+```
+
+### Logging (`log_config.py`)
+
+纯 dictConfig，不管 hook。项目只用一个 `"agent"` logger：
+- 控制台输出（DEBUG 级别）
+- `agent.log` 文件（DEBUG 级别）
+
+各模块通过 `logging.getLogger("agent")` 获取。
+
+### Hooks (`hooks/`)
+
+六个生命周期事件 + 内置日志回调。`import hooks` 时自动注册内置钩子。
+要新增内置钩子（如 metrics），在 `logging_hooks.py` 中添加 `@register_hook` 装饰器即可。
+
+```python
+from hooks import register_hook
+
+@register_hook("PreToolUse")
+def my_callback(**kw):
+    ...
+```
+
+### Agent Loop (`agent_loop.py`)
+
+`agent_loop(state, on_text=None)` 是核心：接受 state dict，读写 `state["messages"]`，返回 state。
+始终流式输出；配合 `on_text` 回调实现打字机效果，不传 `on_text` 则静默运行。
 
 ```
 User msg → send to Claude → response
